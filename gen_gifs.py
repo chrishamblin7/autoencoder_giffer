@@ -9,12 +9,12 @@ from torchvision.utils import save_image
 
 
 #PARAMS
-model_path = 'sim_mnist_dautoencoder.pth'
+model_path = 'mnist_vautoencoder.pth'
 image_path = 'data/MNIST/sample_images/' 
-output_path = 'gifs/DAE/'
+output_path = 'gifs/VAE/'
 #model
-from models import autoencoder
-model = autoencoder()
+from models import autoencoder, VariationalAutoencoder
+model = VariationalAutoencoder()
 model.load_state_dict(torch.load(model_path))
 model.cuda()
 
@@ -96,7 +96,7 @@ images = images_gs
 for i in range(200):
 	pic = to_img(images.cpu().data)
 	save_image(pic, '%s/pic_%s.png'%(output_path,i))
-	images = model(images)
+	images, mu, logvar = model(images)      #GET RID OF mu and logvar for non variational autoencoder
 
 
 '''
@@ -108,7 +108,7 @@ save_image(outpic_bw, './gifs/out_bw.png')
 save_image(outpic_gs, './gifs/out_gs.png')
 '''
 
-
+'''
 #convert to GIF
 import subprocess
 import os
@@ -116,5 +116,5 @@ import os
 i = output_path+"*.png"
 o = output_path+"output.gif"
 subprocess.call("convert -delay 100 -loop 0 " + i + " " + o, shell=True)
-
+'''
 #os.system("start output.gif")
