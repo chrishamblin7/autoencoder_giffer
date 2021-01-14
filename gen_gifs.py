@@ -9,9 +9,14 @@ from torchvision.utils import save_image
 
 
 #PARAMS
-model_path = 'mnist_vautoencoder.pth'
+model_path = 'mnist_vdautoencoder.pth'
 image_path = 'data/MNIST/sample_images/' 
-output_path = 'gifs/VAE/'
+output_path = 'gifs/VAE_smallsample/'
+step = 7       #fetch everything nth image, (bigger numbers mean less mnist digits in final combined image)
+
+if not os.path.exists(output_path):
+	os.mkdir(output_path)
+
 #model
 from models import autoencoder, VariationalAutoencoder
 model = VariationalAutoencoder()
@@ -67,12 +72,14 @@ img_transform = transforms.Compose([
 totens= transforms.Compose([
     transforms.ToTensor()])
 
-def image_loader(image_folder = image_path, transform=img_transform):
+def image_loader(image_folder = image_path, transform=img_transform,step = step ):
 	img_names = os.listdir(image_folder)
 	img_names.sort()
 	image_bw_list = []
 	image_gs_list = []
-	for img_name in img_names:
+	for i,img_name in enumerate(img_names):
+		if i%step != 0:
+			continue
 		image = Image.open(os.path.join(image_folder,img_name))
 		#black and white version of inputs
 		image_bw = transform(image).float()
@@ -93,7 +100,7 @@ images_bw,images_gs = Variable(images_bw).cuda(),Variable(images_gs).cuda()
 
 #run model
 images = images_gs
-for i in range(200):
+for i in range(100):
 	pic = to_img(images.cpu().data)
 	save_image(pic, '%s/pic_%s.png'%(output_path,i))
 	images, mu, logvar = model(images)      #GET RID OF mu and logvar for non variational autoencoder
